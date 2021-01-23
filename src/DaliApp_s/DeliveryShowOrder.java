@@ -1,0 +1,264 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package DaliApp_s;
+
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Toolkit;
+import java.awt.event.WindowEvent;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.BorderFactory;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.UIManager;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
+
+/**
+ *
+ * @author rafail
+ */
+public class DeliveryShowOrder extends javax.swing.JFrame {
+        
+    /**
+     * Creates new form DeliveryShowOrder
+     */
+    public DeliveryShowOrder(){
+        initComponents();
+        try {
+            
+            this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            Class.forName("com.mysql.jdbc.Driver");  // MySQL database connection
+            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/dalidb?" + "user=root&password=");
+            Statement stmt = null;
+            stmt = conn.createStatement();
+            String query ="SELECT * FROM `orders` INNER JOIN `products` ON orders.pid=products.id WHERE DATE(`date`) = CURDATE()";
+            ResultSet rs = stmt.executeQuery(query);
+            Statement stmtmax = null;
+            stmtmax = conn.createStatement();
+            String querymax ="SELECT MAX(oid) as `max` FROM `orders` WHERE DATE(`date`) = CURDATE()";
+            ResultSet rsmax = stmtmax.executeQuery(querymax);
+            Statement stmtmin = null;
+            stmtmin = conn.createStatement();
+            String querymin ="SELECT MIN(oid) as `min` FROM `orders` WHERE DATE(`date`) = CURDATE()";
+            ResultSet rsmin = stmtmin.executeQuery(querymin);
+            
+            while(rsmax.next() && rsmin.next() )
+            {
+                int max=rsmax.getInt("max");
+                int min=rsmin.getInt("min");
+                
+                int counter=0;
+                for(int i=min;i<=max;i++){
+                    
+                    
+                    
+                    DefaultTableModel model=(DefaultTableModel) otable.getModel();
+                    otable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+                     
+                    while(rs.next()){
+                        if(rs.getInt("oid")==i){
+                            System.out.println(rs.getInt("oid"));
+                            model.addRow(new Object[]{rs.getInt("oid"),rs.getInt("quantity"),rs.getString("products.name"),rs.getString("description"),rs.getTimestamp("date")});
+                        }
+                    }
+                    counter++;
+                    rs.beforeFirst();
+                    
+                    todayOrders.revalidate();
+                    todayOrders.repaint();
+                    
+                }
+                
+                resizeColumnWidth(otable);
+                
+                //System.out.println(rsmax.getInt("max"));
+                //System.out.println(rsmin.getInt("min"));
+            }
+            
+            
+            
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(DeliveryShowOrder.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(DeliveryShowOrder.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+    public void resizeColumnWidth(JTable table) {
+    final TableColumnModel columnModel = table.getColumnModel();
+    for (int column = 0; column < table.getColumnCount(); column++) {
+        int width = 15; // Min width
+        for (int row = 0; row < table.getRowCount(); row++) {
+            TableCellRenderer renderer = table.getCellRenderer(row, column);
+            Component comp = table.prepareRenderer(renderer, row, column);
+            width = Math.max(comp.getPreferredSize().width +1 , width);
+        }
+        if(width > 300)
+            width=300;
+        columnModel.getColumn(column).setPreferredWidth(width);
+    }
+    }
+    public void close(){
+         WindowEvent winClosinEvent=new WindowEvent(this,WindowEvent.WINDOW_CLOSING);
+         Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(winClosinEvent);
+     
+     
+     }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        todayOrders = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        otable = new javax.swing.JTable();
+        jButton1 = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setName(""); // NOI18N
+
+        otable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "ID", "ΠΟΣΟΤΗΤΑ", "ΠΡΟΙΟΝ", "ΠΕΡΙΓΡΑΦΗ", "ΩΡΑ"
+            }
+        ));
+        jScrollPane2.setViewportView(otable);
+
+        jButton1.setText("ΔΙΑΓΡΑΦΗ ΠΑΡΑΓΓΕΛΙΑΣ");
+        jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton1MouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout todayOrdersLayout = new javax.swing.GroupLayout(todayOrders);
+        todayOrders.setLayout(todayOrdersLayout);
+        todayOrdersLayout.setHorizontalGroup(
+            todayOrdersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(todayOrdersLayout.createSequentialGroup()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 694, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButton1)
+                .addContainerGap())
+        );
+        todayOrdersLayout.setVerticalGroup(
+            todayOrdersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 474, Short.MAX_VALUE)
+            .addGroup(todayOrdersLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(todayOrders, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(todayOrders, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
+       int opt=JOptionPane.showConfirmDialog(null,"ΕΙΣΤΕ ΣΙΓΟΥΡΟΙ ΓΙΑ ΤΗΝ ΔΙΑΓΡΑΦΗ ΤΗΣ ΠΑΡΑΓΓΕΛΙΑΣ???","ΔΙΑΓΡΑΦΗ",JOptionPane.YES_NO_OPTION);
+       if(opt==0){
+        try {
+            int row = this.otable.getSelectedRow();
+            int idfordelete=(int) this.otable.getValueAt(row, 0);
+            
+            Class.forName("com.mysql.jdbc.Driver");  // MySQL database connection
+            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/dalidb?" + "user=root&password=");
+            Statement stmt = null;
+            stmt = conn.createStatement();
+            String query ="DELETE FROM `orders` WHERE oid="+idfordelete;
+            stmt.executeUpdate(query);
+            JOptionPane.showMessageDialog(null, "Η ΠΑΡΑΓΓΕΛΙΑ ΔΙΑΓΡΑΦΗΚΕ");
+            this.dispose();
+            Delivery delivery=new Delivery();
+            delivery.setVisible(true);
+            
+            
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(DeliveryShowOrder.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(DeliveryShowOrder.class.getName()).log(Level.SEVERE, null, ex);
+        }
+       }else{
+           
+       }
+        
+    }//GEN-LAST:event_jButton1MouseClicked
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(DeliveryShowOrder.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(DeliveryShowOrder.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(DeliveryShowOrder.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(DeliveryShowOrder.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new DeliveryShowOrder().setVisible(true);
+                
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTable otable;
+    private javax.swing.JPanel todayOrders;
+    // End of variables declaration//GEN-END:variables
+}
